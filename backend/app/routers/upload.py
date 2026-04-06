@@ -1,7 +1,7 @@
 import uuid
 import os
 from typing import Optional
-from fastapi import APIRouter, Depends, File, Form, UploadFile, HTTPException
+from fastapi import APIRouter, Depends, File, Form, UploadFile, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 
 from app.auth import get_current_user
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/upload", tags=["upload"])
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md", ".mp3", ".wav", ".m4a", ".ogg", ".webm"}
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
 
-def _create_job_and_queue(memory_id: str, user_id: str) -> str:
+def _create_job_and_queue(memory_id: str, user_id: str, bg: BackgroundTasks) -> str:
     supabase = get_supabase()
     job_result = supabase.table("jobs").insert({
         "user_id": user_id,
@@ -24,13 +24,18 @@ def _create_job_and_queue(memory_id: str, user_id: str) -> str:
     }).execute()
     job_id = job_result.data[0]["id"]
 
-    from app.tasks.ingest_task import ingest_task
-    ingest_task.delay(memory_id, user_id)
+    if settings.USE_CELERY:
+        from app.tasks.ingest_task import ingest_task
+        ingest_task.delay(memory_id, user_id)
+    else:
+        from app.tasks.ingest_task import ingest_task_internal
+        bg.add_task(ingest_task_internal, memory_id, user_id)
 
     return job_id
 
 @router.post("/file")
 async def upload_file(
+    bg: BackgroundTasks,
     file: UploadFile = File(...),
     title: str = Form(...),
     tags: str = Form(""),
@@ -66,7 +71,7 @@ async def upload_file(
     }).execute()
     
     memory_id = memory_result.data[0]["id"]
-    job_id = _create_job_and_queue(memory_id, user["id"])
+    job_id = _create_job_and_queue(memory_id, user["id"], bg)
     return {"memory_id": memory_id, "job_id": job_id, "status": "queued"}
 
 class URLRequest(BaseModel):
@@ -76,7 +81,7 @@ class URLRequest(BaseModel):
     space_id: str | None = None
 
 @router.post("/url")
-def upload_url(body: URLRequest, user: dict = Depends(get_current_user)):
+def upload_url(body: URLRequest, bg: BackgroundTasks, user: dict = Depends(get_current_user)):
     if not body.url.startswith(("http://", "https://")):
         raise HTTPException(status_code=400, detail="Invalid URL")
 
@@ -90,7 +95,7 @@ def upload_url(body: URLRequest, user: dict = Depends(get_current_user)):
         "space_id": body.space_id,
     }).execute()
     memory_id = memory_result.data[0]["id"]
-    job_id = _create_job_and_queue(memory_id, user["id"])
+    job_id = _create_job_and_queue(memory_id, user["id"], bg)
     return {"memory_id": memory_id, "job_id": job_id, "status": "queued"}
 
 class NoteRequest(BaseModel):
@@ -100,7 +105,7 @@ class NoteRequest(BaseModel):
     space_id: str | None = None
 
 @router.post("/note")
-def upload_note(body: NoteRequest, user: dict = Depends(get_current_user)):
+def upload_note(body: NoteRequest, bg: BackgroundTasks, user: dict = Depends(get_current_user)):
     if not body.content.strip():
          raise HTTPException(status_code=400, detail="Note content cannot be empty")
 
@@ -114,5 +119,5 @@ def upload_note(body: NoteRequest, user: dict = Depends(get_current_user)):
          "space_id": body.space_id,
     }).execute()
     memory_id = memory_result.data[0]["id"]
-    job_id = _create_job_and_queue(memory_id, user["id"])
+    job_id = _create_job_and_queue(memory_id, user["id"], bg)
     return {"memory_id": memory_id, "job_id": job_id, "status": "queued"}

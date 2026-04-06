@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:3000"
     BACKEND_URL: str = "http://127.0.0.1:8000"
     ENV: str = "development"
+    USE_CELERY: bool = True
 
 @lru_cache
 def get_settings(): return Settings()
