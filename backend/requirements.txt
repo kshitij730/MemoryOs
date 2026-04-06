@@ -1,0 +1,41 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic-settings
+
+# Groq LLM (primary — llama-3.3-70b-versatile)
+groq
+
+# Supabase (DB + Auth + Storage + Embeddings)
+supabase
+httpx
+
+# RAG / NLP
+langchain
+langgraph
+langchain-community
+rank-bm25
+trafilatura
+
+# Document parsing
+pypdf
+python-docx
+
+# Voice transcription (local, free)
+openai-whisper
+
+# Background jobs
+celery
+redis
+
+# LLM observability
+langfuse
+
+# MCP server
+mcp
+
+# Web search (research agent)
+tavily-python
+
+# Async HTTP
+aiofiles

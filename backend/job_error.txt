@@ -1,0 +1,1 @@
+{'message': 'new row for relation "jobs" violates check constraint "jobs_status_check"', 'code': '23514', 'hint': None, 'details': 'Failing row contains (5cbdac0a-1d13-4434-aaa5-82c5d69e9abd, 96b9138d-0557-4a6a-bdfe-f0df0fdde1fb, a37429a5-25c0-4a34-8699-81cb7e1fe97d, ingest, processing, 0, null, null, 2026-04-04 11:10:57.653507+00, null).'}

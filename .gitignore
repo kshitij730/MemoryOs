@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+backend/venv/
+backend/__pycache__/
+*.pyc
+
+# Environment Files (IMPORTANT: Never push these)
+.env
+.env.local
+backend/.env
+frontend/.env.local
+.env.development
+.env.production
+.env.test
+
+# Build Outputs
+.next/
+frontend/dist/
+frontend/out/
+backend/build/
+backend/dist/
+
+# OS/System files
+.DS_Store
+Thumbs.db
+*.log
