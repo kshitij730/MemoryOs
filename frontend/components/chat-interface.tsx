@@ -32,29 +32,6 @@ const MarkdownContent = ({ content }: { content: string }) => {
                 h3: ({ children }) => <h3 className="font-serif text-xl text-accent-light mt-6 mb-3">{children}</h3>,
                 strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
                 code: ({ children }) => <code className="bg-bg-3 px-1.5 py-0.5 rounded text-accent-light font-mono text-xs">{children}</code>,
-                // Citation badges
-                text: ({ value }) => {
-                    if (typeof value !== 'string') return value
-                    const parts = value.split(/(\[\d+\])/g)
-                    return (
-                        <>
-                            {parts.map((part, i) => {
-                                if (/^\[\d+\]$/.test(part)) {
-                                    return (
-                                        <motion.span
-                                            key={i}
-                                            whileHover={{ scale: 1.1 }}
-                                            className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent-bg border border-accent/30 text-[10px] text-accent-light font-bold mx-1 align-top mt-1 cursor-pointer"
-                                        >
-                                            {part.slice(1, -1)}
-                                        </motion.span>
-                                    )
-                                }
-                                return part
-                            })}
-                        </>
-                    )
-                }
             }}
         >
             {content}
