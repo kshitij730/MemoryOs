@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { FlashcardViewer } from '@/components/flashcard-viewer'
 import { flashcardsApi, memoriesApi } from '@/lib/api'
-import { Flashcard } from '@/lib/types'
+import { Flashcard, Memory } from '@/lib/types'
 
 const SOURCE_ICONS: Record<string, string> = {
     document: '📄', url: '🔗', note: '✏️', voice: '🎙️', agent: '🤖',
